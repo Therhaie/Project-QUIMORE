@@ -1,0 +1,44 @@
+04/11
+Création du venv et du fichier txt associé (besoin de vérifier la compatibilité avec la dernière version de tensorflow)
+comme attendu le code a été développé sur tensorflow V1 donc certaine méthode ne sont plus disponible 
+La partie du code concernant le réseau de neurones a été basculé sur Pytorch
+
+- création d'un code pour modifier 
+
+
+05/11
+
+
+
+correction des problèmes de broadcasting entre les inputs et les outputs
+la loss évolue au cours du temps mais atteint des valeurs très faible logique car il n'y a que 5 images dans le dataset
+création d'un git
+- Les conditions aux limites dans le code sont normales, le fait qu'elles mélangent du Neumann et Dirichlet 
+	- S'il n'y avait que du Neumann alors n'y aurait pas unicité de la solution
+
+IHM satisfaisante pour voir que le modèle réussit bien à afficher ce qu'il a appris (actuellement comme il n'y a que 5 images il overfit)
+
+
+
+A FAIRE
+- faire une IHM (plot) pour vérifier si la résolution des équations est bien faite
+
+
+
+- condition aux limites ???
+- variation de C (conductivité) essayer de se placer dans un cas simple
+
+- séparer le code qui lance l'entraînement de celui qui crée les échantillons
+- faire s'entraîner le modèle sur plusieurs fichier
+	- voir sont comportement au niveau des tailles (dimensions d'images différentes / nombre de sample différent)
+	- sûrement devoir modifier la partie chargement des données
+	- implémenter training / validation / test
+- Comprendre plus précisément ce que le CNN calcule
+- implémenter 
+- tester sa capacité de généralisation
+- combinaison loss L1 et L2
+- pas de validation / test car on travail directement sur l'équation
+
+
+
+

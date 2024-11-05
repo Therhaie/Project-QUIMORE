@@ -1,0 +1,5 @@
+# Ignore the venv_pytorch
+venv_pytorch/
+
+# Ignore the dataset
+data/

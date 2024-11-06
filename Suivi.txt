@@ -9,7 +9,6 @@ La partie du code concernant le réseau de neurones a été basculé sur Pytorch
 05/11
 
 
-
 correction des problèmes de broadcasting entre les inputs et les outputs
 la loss évolue au cours du temps mais atteint des valeurs très faible logique car il n'y a que 5 images dans le dataset
 création d'un git
@@ -18,11 +17,16 @@ création d'un git
 
 IHM satisfaisante pour voir que le modèle réussit bien à afficher ce qu'il a appris (actuellement comme il n'y a que 5 images il overfit)
 
+06/11
+
 
 
 A FAIRE
-- faire une IHM (plot) pour vérifier si la résolution des équations est bien faite
++ faire une IHM (plot) pour vérifier si la résolution des équations est bien faite
+- besoin de passer le modèle avec Cuda
 
+- analyse de la structure du réseaux GAN
+- générer une base d'apprentissage
 
 
 - condition aux limites ???

@@ -8,6 +8,7 @@ import GPy
 import torch
 from scripts.surrogate_pytorch import DeepUQSurrogate  # Ensure surrogate_pytorch has PyTorch model
 import matplotlib.pyplot as plt
+import time
 
 # Argument parsing for flexibility
 parser = argparse.ArgumentParser(description="Run heat equation solver with random field inputs.")
@@ -87,8 +88,20 @@ print(data_path)
 data = np.load(data_path)
 
 # Reshape inputs and outputs for training (flat vectors)
-inputs = data['inputs'].reshape(-1, nx * ny)  # Flatten for training (num_samples, nx * ny)
-outputs = data['outputs'].reshape(-1, nx * ny)  # Flatten for training (num_samples, nx * ny)
+# inputs = data['inputs'].reshape(-1, nx * ny)  # Flatten for training (num_samples, nx * ny)
+# outputs = data['outputs'].reshape(-1, nx * ny)  # Flatten for training (num_samples, nx * ny)
+inputs = data['inputs'].reshape(-1, nx * ny)
+outputs = data['outputs'].reshape(-1, nx * ny)
+
+# # Convert inputs and outputs to PyTorch tensors and move to GPU if available
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# inputs = torch.from_numpy(inputs).float().to(device)
+# outputs = torch.from_numpy(outputs).float().to(device)
+# Convert to PyTorch tensors and send to GPU if available
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+inputs = torch.from_numpy(inputs).float().to(device)
+outputs = torch.from_numpy(outputs).float().to(device)
+
 
 # Convert inputs and outputs to PyTorch tensors
 inputs = torch.tensor(inputs, dtype=torch.float32)
@@ -104,7 +117,7 @@ print('value of D= nx*ny',D)
 L = 3        # Number of encoding layers
 d = 128      # Encoding dimension
 
-surrogate = DeepUQSurrogate(D=D, L=L, d=d, output_size=1024) # be careful with the output_size shape of the 
+surrogate = DeepUQSurrogate(D=D, L=L, d=d, output_size=1024).to(device) # be careful with the output_size shape of the 
 
 # Define optimizer and loss function
 optimizer = torch.optim.Adam(surrogate.parameters(), lr=1e-3)
@@ -113,9 +126,10 @@ criterion = torch.nn.MSELoss()
 # Training parameters
 epochs = 500
 batch_size = 32
-
-# Initialize lists to store loss values for plotting
 loss_values = []
+
+# Track training time
+start_time = time.time()
 
 # Training loop with loss tracking for plotting
 for epoch in range(epochs):
@@ -134,12 +148,16 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
     
-    # Logging
-    if epoch % 50 == 0:
-        with torch.no_grad():
-            loss_val = criterion(surrogate(inputs), outputs)
-        print(f"Epoch {epoch}, Loss: {loss_val.item()}")
-        loss_values.append(loss_val.item())  # Save loss for plotting
+    # Log and measure time every 50 epochs
+    if (epoch + 1) % 50 == 0:
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        loss_val = criterion(surrogate(inputs), outputs).item()
+        
+        # Record loss and reset start time
+        print(f"Epoch {epoch+1}, Loss: {loss_val}, Time for last 50 epochs: {elapsed_time:.2f} seconds")
+        loss_values.append(loss_val)
+        start_time = time.time()  # Reset timer for the next 50 epochs
 
 print("Training complete.")
 
@@ -162,12 +180,12 @@ with torch.no_grad():
 fig, axes = plt.subplots(2, 5, figsize=(15, 6))
 for i in range(5):
     # Ground truth
-    axes[0, i].imshow(ground_truth[i].numpy(), cmap="viridis")
+    axes[0, i].imshow(ground_truth[i].cpu().numpy(), cmap="viridis") # cpu is used to move the tensor to cpu
     axes[0, i].set_title(f"Ground Truth {i+1}")
     axes[0, i].axis("off")
     
     # Prediction
-    axes[1, i].imshow(predictions[i].numpy(), cmap="viridis")
+    axes[1, i].imshow(predictions[i].cpu().numpy(), cmap="viridis") # cpu is used to move the tensor to cpu
     axes[1, i].set_title(f"Prediction {i+1}")
     axes[1, i].axis("off")
 

@@ -1,5 +1,9 @@
 # Ignore the venv_pytorch
 venv_pytorch/
+venv_pytorch_linux
 
 # Ignore the dataset
 data/
+
+# Ignore the models files
+models/

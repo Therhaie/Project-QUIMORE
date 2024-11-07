@@ -19,20 +19,40 @@ IHM satisfaisante pour voir que le modèle réussit bien à afficher ce qu'il a 
 
 06/11
 
+Le code utilise Cuda pour l'entraînement du réseaux
+Création du venv pour linux afin de pouvoir lancer des scripts bash et pouvoir réaliser les calculs indépendamment de Linux / Windows
+commande pour installer pytorch """ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 """
+prise sur le site de pytorch attention à la version de cuda installer sur la machine. Sûrement cuda inutilisable si pas la bonne version de Cuda
+Il faut d'abord installer Cuda sur la machine en ayant aucune version de pytorch puis ensuite installer pytorch depuis le site
+
+l'environnement virtuelle linux fonctionne bien, il semblerait que d'exécuter des codes depuis WSL ralentisse le temps
+
+07/11
+
+Le l'entraînement avec 10000 image 32*32 génère une erreur pytorch out of memory pour le GPU avec un batch size de 32
+objectif diminuer le batch size à 16
+possibilité ne passé que le batch d'entraînement sur le GPU à chaque fois ( doit sûrement augmenter les temps de calcul)
+Si la solution choisit est de ne basculer que les données du batch sur le GPU alors il faudra augmenter la taille du batch size afin de 
+minimiser le nombre de transfert 
+
+
 
 
 A FAIRE
 + faire une IHM (plot) pour vérifier si la résolution des équations est bien faite
-- besoin de passer le modèle avec Cuda
++ besoin de passer le modèle avec Cuda
++ sauvegarder le modèle
++ condition aux limites ???
++ séparer le code qui lance l'entraînement de celui qui crée les échantillons
+
 
 - analyse de la structure du réseaux GAN
-- générer une base d'apprentissage
-
-
-- condition aux limites ???
+(-) générer une base d'apprentissage
+- implémenter de la data augmentation ? (même si on pourrait augmenter la taille de la base de donnée à volonté)
+- ajout d'une condition de patience ?
 - variation de C (conductivité) essayer de se placer dans un cas simple
 
-- séparer le code qui lance l'entraînement de celui qui crée les échantillons
+
 - faire s'entraîner le modèle sur plusieurs fichier
 	- voir sont comportement au niveau des tailles (dimensions d'images différentes / nombre de sample différent)
 	- sûrement devoir modifier la partie chargement des données
@@ -42,7 +62,9 @@ A FAIRE
 - tester sa capacité de généralisation
 - combinaison loss L1 et L2
 - pas de validation / test car on travail directement sur l'équation
-
+- Possiblement tracer des négatifs pourrait être intéressant pour pouvoir comparer plus facilement
+- Quelles métriques implémenter : Mean Absolute Error (MAE) for regression task
+	- Accuracy, Precision, Recall
 
 
 

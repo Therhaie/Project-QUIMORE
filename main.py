@@ -12,7 +12,7 @@ import time
 
 # Argument parsing for flexibility
 parser = argparse.ArgumentParser(description="Run heat equation solver with random field inputs.")
-parser.add_argument('-N', type=int, default=5, help="Number of samples")
+parser.add_argument('-N', type=int, default=10, help="Number of samples")
 parser.add_argument('-nx', type=int, default=32, help="Number of grid cells in x direction")
 parser.add_argument('-ny', type=int, default=32, help="Number of grid cells in y direction")
 parser.add_argument('-lx', type=float, default=0.02, help="Lengthscale x")
@@ -72,7 +72,7 @@ data_directory = os.path.join(os.path.dirname(path_file), "data")
 os.makedirs(data_directory, exist_ok=True)
 
 # Create the full path to the output file
-output_file = os.path.join(data_directory, f"data_{kernel_type}_samples.npz")
+output_file = os.path.join(data_directory, f"data_{kernel_type}_samples_500.npz")
 
 # Save the data
 np.savez(output_file, inputs=inputs, outputs=outputs)
@@ -80,7 +80,7 @@ print(f"Data saved to {output_file}")
 print("Output file saved in:", os.path.abspath(output_file))
 
 #########################################################################################################################
-# TRAINING PART
+# # TRAINING PART
 
 # Load the generated dataset
 data_path = os.path.join(os.path.dirname(__file__), "data", "data_rbf_samples.npz")
@@ -161,6 +161,18 @@ for epoch in range(epochs):
 
 print("Training complete.")
 
+# Define the path where the model will be saved
+model_path = os.path.join(os.path.dirname(__file__), "models")
+os.makedirs(model_path, exist_ok=True)
+model_path = os.path.join(model_path, "trained_model.pth") 
+
+# Need to modify the name of the output model to be able to extract importante information if needed to be used / reloaed later
+
+# Save the model
+torch.save(surrogate.state_dict(), model_path)
+print(f"Model saved to {model_path}")
+
+
 # Plot the evolution of the loss
 plt.figure(figsize=(10, 5))
 plt.plot(range(0, epochs, 50), loss_values, label="Training Loss")
@@ -191,4 +203,36 @@ for i in range(5):
 
 plt.suptitle("Ground Truth vs Predictions")
 plt.tight_layout()
+
+
+# Test the performance of the model reloaded
+
+# Initialize the model (with the same structure) and load the state dictionary
+surrogate_load = DeepUQSurrogate(D=nx * ny, L=3, d=128, output_size=1024).to(device)
+surrogate_load.load_state_dict(torch.load(model_path))
+surrogate_load.eval()  # Set the model to evaluation mode
+print("Model loaded successfully.")
+
+# Generate predictions for a subset of data (e.g., the first 5 samples)
+with torch.no_grad():
+    predictions = surrogate_load(inputs[:5]).reshape(-1, nx, ny)
+    ground_truth = outputs[:5].reshape(-1, nx, ny)
+
+# Plot ground truth vs predictions
+fig, axes = plt.subplots(2, 5, figsize=(15, 6))
+for i in range(5):
+    # Ground truth
+    axes[0, i].imshow(ground_truth[i].cpu().numpy(), cmap="viridis")
+    axes[0, i].set_title(f"Ground Truth {i+1}")
+    axes[0, i].axis("off")
+    
+    # Prediction
+    axes[1, i].imshow(predictions[i].cpu().numpy(), cmap="viridis")
+    axes[1, i].set_title(f"Prediction {i+1}")
+    axes[1, i].axis("off")
+
+
+plt.suptitle("Ground Truth vs Predictions reloaded model")
+plt.tight_layout()
 plt.show()
+

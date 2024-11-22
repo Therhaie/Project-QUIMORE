@@ -36,6 +36,10 @@ Si la solution choisit est de ne basculer que les données du batch sur le GPU a
 minimiser le nombre de transfert 
 
 
+08/11
+
+ajout de pytorchsummary dans le venv
+
 
 
 A FAIRE

@@ -22,7 +22,7 @@ def extract_parameters(name):
 
 if __name__ == '__main__':
     #data_path = rf"C:\python_workspace\3A\ProjetSOIA\deep-uq-paper-master\data\data_rbf_samples_10000_nx_32_ny_32.npz"
-    data_path = rf"C:\python_workspace\3A\ProjetSOIA\deep-uq-paper-master\data\data_rbf_samples_500_nx_32_ny_32.npz"
+    data_path = rf"C:\python_workspace\3A\ProjetSOIA\deep-uq-paper-master\data\data_rbf_samples_2000_nx_32_ny_32.npz"
     N, nx, ny = extract_parameters(data_path)
     print(f"Number of samples: {N}, nx: {nx}, ny: {ny}")
 
@@ -71,47 +71,6 @@ if __name__ == '__main__':
     start_time = time.time()
     print('start training')
 
-# # Import for mixed precision
-# from torch.cuda.amp import autocast, GradScaler
-
-# # Initialize mixed-precision scaling
-# scaler = GradScaler()
-
-# # Training parameters
-# epochs = 100
-# batch_size = 8  # Reduced batch size
-
-
-
-# # Training loop with per-batch GPU loading and mixed precision
-# for epoch in range(epochs):
-#     for i in range(0, train_inputs.size(0), batch_size):
-#         x_batch = train_inputs[i:i + batch_size].to(device)
-#         y_batch = train_outputs[i:i + batch_size].to(device)
-
-#         # Forward pass with mixed precision
-#         with autocast():
-#             y_pred = surrogate(x_batch)
-#             loss = criterion(y_pred, y_batch)
-
-#         # Backward pass with mixed precision
-#         optimizer.zero_grad()
-#         scaler.scale(loss).backward()
-#         scaler.step(optimizer)
-#         scaler.update()
-
-#         # Clear GPU memory cache
-#         torch.cuda.empty_cache()
-
-#     # Log loss and time every 20 epochs
-#     if (epoch + 1) % 20 == 0:
-#         elapsed_time = time.time() - start_time
-#         print(f"Epoch {epoch+1}, Loss: {loss.item()}, Time: {elapsed_time:.2f} seconds")
-#         loss_values.append(loss.item())
-#         start_time = time.time()
-    
-
-
     # Track training time
     start_time = time.time()    
     # Training loop with loss tracking for plotting
@@ -136,14 +95,14 @@ if __name__ == '__main__':
             del x_batch, y_batch, y_pred
             torch.cuda.empty_cache()
 
-        # Log and measure time every 20 epochs
-        if (epoch + 1) % 20 == 0:
+        # Log and measure time every 5 epochs
+        if (epoch + 1) % 5 == 0:
             end_time = time.time()
             elapsed_time = end_time - start_time
             loss_val = criterion(surrogate(train_inputs.to(device)), train_outputs.to(device)).item()
 
             # Record loss and reset start time
-            print(f"Epoch {epoch+1}, Loss: {loss_val}, Time for last 20 epochs: {elapsed_time:.2f} seconds")
+            print(f"Epoch {epoch+1}, Loss: {loss_val}, Time for last 5 epochs: {elapsed_time:.2f} seconds")
             loss_values.append(loss_val)
             start_time = time.time()
 
@@ -156,7 +115,7 @@ if __name__ == '__main__':
 
     # Plot the evolution of the loss
     plt.figure(figsize=(10, 5))
-    plt.plot(range(0, epochs, 20), loss_values, label="Training Loss")
+    plt.plot(range(0, epochs, 5), loss_values, label="Training Loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.title("Evolution of Training Loss")

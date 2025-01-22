@@ -1,0 +1,16 @@
+L matrice (1024,1024)
+z matrice (1024,1)
+sample (1024,)
+essaie en ne fixant que la valeur de C avant de le mettre dans le solveur
+
+C : propriété du matériaux
+f : random field
+
+
+Il semblerait que le solver ajoute de l'aléatoire indépendamment de l'entré qu'on lui fournisse 
+- la donné qui est stocké dans Inputs et qui sera donc ceux sur quoi le modèles ce base pour apprendre est f le coefficient de source
+
+cependant en regardant en visualisant C, F, et Phi la sortie 
+- Le champ phi généré semble dépendre de la valeur de C
+(vérification avec le code du GitHub et le processus décrit dans l'article)
+Dans l'article il stocke bien les valeurs a et u

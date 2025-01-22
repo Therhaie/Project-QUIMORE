@@ -1,3 +1,7 @@
+22/12
+Implémentation MC avec 100 Samples, problem d'allocation de mémoire
+
+
 04/11
 Création du venv et du fichier txt associé (besoin de vérifier la compatibilité avec la dernière version de tensorflow)
 comme attendu le code a été développé sur tensorflow V1 donc certaine méthode ne sont plus disponible 
@@ -40,6 +44,56 @@ minimiser le nombre de transfert
 
 ajout de pytorchsummary dans le venv
 
+10/12
+Application de l'entrainement sur plusiseurs patch d'image de 2000
+après chaque itération(sur un fichier de 2000 images) on constate une amélioration de 1,94516e-5 de l'accuracy
+Training sur 100 époques l'évolution de l'accuracy est minime au cours du temps
+	- réduire le nombre d'époques par tranches du dataset
+	- lors du training sur la 5e tranche l'accuracy est remonté, réentrainement d'une modèle en ayant juste modifié le batch-size
+	 pour savoir si le modèle "over-fit"
+	- ajouter un scheduler, actuellement aucun donc lire la doc pour savoir la configuration actuelle d'entrainement
+		- tester de reset le scheduler à chaque changement de tranche de donnée
+		- tester en prévoyant le scheduler sur les 10000 images
+
+essaie d'optimisation du temps de calcul des époques : Epoch 60, Loss: 0.0008262904011644423, Time for last 5 epochs: 166.23 seconds
+
+
+	- tester sans le fait de ne plus que charger que le batch en cours de traitement sur le gpu
+	- tester avec la même configuration en augmentant le batch donc moins de transfert de données du CPU vers le GPU
+	batch size 5 -> 40 test des performances (160 -> 25) réduction du temps de calcul de *8
+	batch size 64 -> 16 secondes par époques
+	- 
+
+modification du nombre d'image par file 4096 : batch size 64 : Epoch 30, Loss: 0.0008653406985104084, Time for last 5 epochs: 33.94 seconds
+
+
+
+
+
+todo : 
+update requierement.txt -> la 
+faire des paquets d'images de 2048 (puissance de 2)
+batch size puissance de 2 -> 64 ou 128
+
+
+
+############################################
+
+FID (Fréchet Inception Distance)
+Définition : Mesure la distance entre les distributions des caractéristiques de deux ensembles d'images dans un espace de caractéristiques extrait (par exemple, à l'aide d'un modèle pré-entraîné comme Inception-v3).
+
+Caractéristiques :
+
+Utilisé pour évaluer la qualité des images générées par GANs.
+Repose sur des caractéristiques perceptuelles de haut niveau.
+Usage :
+
+Comparaison qualitative dans des tâches de génération d'images.
+
+
+######################################""
+
+
 
 
 A FAIRE
@@ -69,6 +123,31 @@ A FAIRE
 - Possiblement tracer des négatifs pourrait être intéressant pour pouvoir comparer plus facilement
 - Quelles métriques implémenter : Mean Absolute Error (MAE) for regression task
 	- Accuracy, Precision, Recall
+
+#############################################
+
+
+comparer le temps de faire une prédiction et le temps de faire une résolution avec FiPy
+modifier la MSE + MAE 
+MSE fait du point à point*
+MAE pour suivre le mouvement être plus physique
+
+
+optimisation bayésienne avec seulement 08 MSE 02 MAE
+
+
+tester avec un MONTE CARLO
+- quantification d'incertitude lancer plusieurs fois MC
+penser à stocker toutes les données pour faire des stats
+
+
+~###############################################""
+
+
+pour monte Carlo prendre un A est remplacé la résolution par le réseau 
+	- la moyenne dois être connue et on cherche a estimé la vraie valeur de u tous les 1024 résolutions
+sinon faire les tests en modifiant le domaine de départ et tester avec sueleent 2 valeurs une a gauche et une a droite
+colorbar pour les plots
 
 
 

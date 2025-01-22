@@ -10,6 +10,7 @@ from scripts.surrogate_pytorch import DeepUQSurrogate  # Ensure surrogate_pytorc
 import matplotlib.pyplot as plt
 import time
 from torchsummary import summary
+from torch.optim.lr_scheduler import CosineAnnealingLR
 
 #This file is used to train the surrogate model with the generated data on the file in the diretory file_split, to evaluate the model, run evaluate_model.py
 
@@ -23,7 +24,7 @@ def extract_parameters(name):
     return N, nx, ny
 
 if __name__ == '__main__':
-    directory_path = rf"C:\python_workspace\3A\ProjetSOIA\deep-uq-paper-master\data\file_split"
+    directory_path = rf"C:\python_workspace\3A\ProjetSOIA\deep-uq-paper-master\data\file_4096"
 
     # Initialize and train the surrogate model
     nx = ny = 32
@@ -32,18 +33,22 @@ if __name__ == '__main__':
     L = 3        # Number of encoding layers
     d = 128      # Encoding dimension
 
+    # Training parameters
+    epochs = 80
+    T_max = epochs
+    batch_size = 512
+    loss_values = []
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
     surrogate = DeepUQSurrogate(D=D, L=L, d=d, output_size=D).to(device)
 
     # Define optimizer and loss function
-    optimizer = torch.optim.Adam(surrogate.parameters(), lr=1e-3)
-    criterion = torch.nn.MSELoss()
+    # optimizer = torch.optim.Adam(surrogate.parameters(), lr=1e-3)
 
-    # Training parameters
-    epochs = 100
-    batch_size = 5
-    loss_values = []
+    optimizer = torch.optim.Adam(surrogate.parameters(), lr=1e-3)
+    scheduler = CosineAnnealingLR(optimizer, T_max=T_max, eta_min=1e-5)
+    criterion = torch.nn.MSELoss()
 
     # Print the model summary
     summary(surrogate, input_size=(D,))
@@ -53,7 +58,7 @@ if __name__ == '__main__':
     for filename in os.listdir(directory_path):
         data_path = os.path.join(directory_path, filename)
 
-        model_path = os.path.join(os.path.dirname(__file__), "models", "iteration_model.pth")
+        model_path = os.path.join(os.path.dirname(__file__), "models", "iteration_model_4096_test.pth")
         if os.path.exists(model_path):
             surrogate.load_state_dict(torch.load(model_path))
             print(f"Model loaded from {model_path}")
@@ -76,6 +81,10 @@ if __name__ == '__main__':
         # Split the dataset
         train_inputs, test_inputs = torch.split(inputs, [train_size, test_size])
         train_outputs, test_outputs = torch.split(outputs, [train_size, test_size])        
+
+        # Reinitialize optimizer and scheduler for each file
+        optimizer = torch.optim.Adam(surrogate.parameters(), lr=1e-3)
+        scheduler = CosineAnnealingLR(optimizer, T_max=T_max, eta_min=1e-5)
 
         start_time = time.time()
         print('start training')

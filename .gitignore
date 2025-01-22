@@ -7,3 +7,6 @@ data/
 
 # Ignore the models files
 models/
+
+# Ignore the presentation
+*.pptx

@@ -19,14 +19,14 @@ def parse_argument():
     Part of the code that handle the parsing of the argument
     '''
     parser = argparse.ArgumentParser(description="Run heat equation solver with random field inputs.")
-    parser.add_argument('-N', type=int, default=12000, help="Number of samples")
+    parser.add_argument('-N', type=int, default=4096*10, help="Number of samples")
     parser.add_argument('-nx', type=int, default=32, help="Number of grid cells in x direction")
     parser.add_argument('-ny', type=int, default=32, help="Number of grid cells in y direction")
     parser.add_argument('-lx', type=float, default=0.02, help="Lengthscale x")
     parser.add_argument('-ly', type=float, default=0.02, help="Lengthscale y")
     parser.add_argument('-var', type=float, default=1.0, help="Variance of random field")
     parser.add_argument('-k', type=str, default="rbf", help="Kernel type for GP model")
-    parser.add_argument('-lf', type=int, default=2000, help="Number of samples you want to store per file")
+    parser.add_argument('-lf', type=int, default=4096, help="Number of samples you want to store per file")
     args = parser.parse_args()
     return args
 
@@ -79,7 +79,7 @@ if __name__ == '__main__':
             path_file = os.path.abspath(__file__)
 
             # Create a 'data' directory in the same directory as the current script
-            data_directory = os.path.join(os.path.dirname(path_file), "data", "file_split")
+            data_directory = os.path.join(os.path.dirname(path_file), "data", "file_4096")
             os.makedirs(data_directory, exist_ok=True)
 
             # Create the full path to the output file
